@@ -17,6 +17,7 @@ model chats {
   id        String    @id @default(uuid())
   pdf_Name  String
   pdf_url   String
+  user_id   String
   file_key  String
   createdAt DateTime  @default(now())
   message   message[]

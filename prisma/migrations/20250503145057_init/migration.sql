@@ -6,6 +6,7 @@ CREATE TABLE "chats" (
     "id" TEXT NOT NULL,
     "pdf_Name" TEXT NOT NULL,
     "pdf_url" TEXT NOT NULL,
+    "user_id" TEXT NOT NULL,
     "file_key" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 

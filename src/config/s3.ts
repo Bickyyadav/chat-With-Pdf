@@ -18,25 +18,23 @@ export async function uploadToS3(file: File) {
       "uploads/" + Date.now().toString() + file.name.replace("", "-");
 
     const params = {
-      Bucket: process.env.NEXT_PUBLIC_S3_BUCKET_NAME,
+      Bucket: process.env.NEXT_PUBLIC_S3_BUCKET_NAME!,
       Key: file_key,
       Body: file,
       ContentType: file.type,
     };
 
     const upload = s3
-        .putObject(params)
+      .putObject(params)
       .on("httpUploadProgress", (evt) => {
-        console.log("🚀 ~ uploadToS3 ~ evt:", evt);
-        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
         console.log(
           "🚀 ~ uploadToS3 ~ upload:",
-          parseInt(((evt.loaded * 100) / evt.total).toString())
-        ) + "%";
+          parseInt(((evt.loaded * 100) / evt.total).toString()) + "%"
+        );
       })
       .promise();
     await upload.then((data) => {
-      console.log("🚀 ~ await upload.then ~ data:", file_key);
+      console.log("🚀 ~ successfully upload to s3:", file_key);
     });
     return Promise.resolve({
       file_key,

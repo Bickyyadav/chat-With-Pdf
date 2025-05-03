@@ -14,7 +14,7 @@ export async function downloadFromS3(file_key: string) {
       region: "ap-south-1",
     });
     const params = {
-      Bucket: process.env.NEXT_PUBLIC_S3_BUCKET_NAME,
+      Bucket: process.env.NEXT_PUBLIC_S3_BUCKET_NAME!,
       Key: file_key,
     };
     const obj = await s3.getObject(params).promise();

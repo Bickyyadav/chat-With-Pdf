@@ -6,10 +6,12 @@ import React, { useState } from "react";
 import { useDropzone } from "react-dropzone";
 import toast from "react-hot-toast";
 import axios from "axios";
+import { useRouter } from "next/navigation";
 
 const FileUpload = () => {
+  const router = useRouter();
   const [uploading, setUploading] = useState(false);
-  const mutation = useMutation({
+  const { mutate, isPending } = useMutation({
     mutationFn: async ({
       file_key,
       file_name,
@@ -28,21 +30,25 @@ const FileUpload = () => {
     accept: { "application/pdf": [".pdf"] },
     maxFiles: 1,
     onDrop: async (acceptFile) => {
+      console.log("🚀 ~ onDrop: ~ acceptFile:", acceptFile);
       const file = acceptFile[0];
       if (file.size > 10 * 1024 * 1024) {
         toast.error("please upload smaller file less than 10 mb");
         return;
       }
       try {
-        setUploading(true);
+        // setUploading(true);
         const data = await uploadToS3(file);
         if (!data?.file_key || !data?.file_name) {
           alert("something went wrong");
           return;
         }
-        mutation.mutate(data, {
-          onSuccess: (data) => {
-            console.log(data);
+        mutate(data, {
+          onSuccess: ({ chat_id }) => {
+            router.push(`chat/${chat_id}`);
+            toast.success("Chat created Successfully");
+
+            console.log("from mutation fileupload", data);
           },
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
           onError: (err) => {
@@ -66,7 +72,7 @@ const FileUpload = () => {
         })}
       >
         <input {...getInputProps()} />
-        {uploading || mutation.isPending ? (
+        {uploading || isPending ? (
           <>
             <Loader2 className="h-10 w-10 text-blue-500 animate-spin" />
             <p className="mt-2 text-sm text-slate-400">Spilling to GPT....</p>
