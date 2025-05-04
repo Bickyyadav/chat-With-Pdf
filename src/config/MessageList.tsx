@@ -21,12 +21,12 @@ const MessageList = ({ messages }: Props) => {
               "justify-start pr-10": message.role === "assistant",
             })}
           >
-            <div className="rounded-lg bg-blue-500 ">
+            <div className="rounded-lg bg-blue-400 ">
               <p
                 className={cn(
                   "rounded-lg px-3 text-sm py-1 shadow-md ring-1 ring-gray-900/10",
                   {
-                    "bg-blue-600 text-white": message.role === "user",
+                    "bg-blue-500 text-white": message.role === "user",
                   }
                 )}
               >

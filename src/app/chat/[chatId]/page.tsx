@@ -17,11 +17,13 @@ const chatPage = async ({ params: { chatId } }: Props) => {
   if (!userId) {
     return redirect("/sign-in");
   }
+
   const getChats = await prisma_client.chats.findMany({
     where: {
       user_id: userId,
     },
   });
+  
   if (!getChats) {
     redirect("/");
   }

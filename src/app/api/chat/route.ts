@@ -12,7 +12,8 @@ export async function POST(req: Request) {
     const result = await model.generateContent(lastUserMessage);
 
     const text = result.response?.candidates?.[0]?.content?.parts?.[0]?.text;
-    console.log("🚀 ~ POST ~ text:", text);
+    console.log("🚀 ~ POST ~ text:", text)
+   
 
     return Response.json({ message: [{ role: "assistant", content: text }] });
   } catch (error) {

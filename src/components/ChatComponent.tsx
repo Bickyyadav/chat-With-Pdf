@@ -5,15 +5,33 @@ import { useChat } from "@ai-sdk/react";
 import { Button } from "./ui/button";
 import { Send } from "lucide-react";
 import MessageList from "@/config/MessageList";
-// import axios from "axios";
-// import { useEffect } from "react";
+import { useEffect } from "react";
+import axios from "axios";
 
-const ChatComponent = () => {
-  const { input, handleInputChange, handleSubmit, messages } =
+const ChatComponent = ({ chat_Id }: { chat_Id: string }) => {
+  const { input, handleInputChange, handleSubmit, messages, setMessages } =
     useChat({
       api: "/api/chat",
+      body: {
+        chat_Id,
+      },
+      onResponse: async (response) => {
+        const data = await response.json();
+        const assistantMessage = data.message[0];
+        setMessages((prev) => [...prev, assistantMessage]);
+      },
     });
+  console.log("🚀 ~ ChatComponent ~ messages:", messages);
 
+  useEffect(() => {
+    const getMessages = async () => {
+      const response = await axios.post("/api/get-messages", {
+        chat_Id,
+      });
+      setMessages(response.data);
+    };
+    getMessages();
+  }, [chat_Id]);
 
   return (
     <div className="relative max-h-screen overflow-scroll">
