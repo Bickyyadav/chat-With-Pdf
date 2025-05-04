@@ -34,7 +34,6 @@ export async function uploadToS3(file: File) {
       })
       .promise();
     await upload.then((data) => {
-      console.log("🚀 ~ successfully upload to s3:", file_key);
     });
     return Promise.resolve({
       file_key,
@@ -42,6 +41,7 @@ export async function uploadToS3(file: File) {
     });
   } catch (error) {
     console.log("🚀 ~ uploadToS3 ~ error:", error);
+    throw error
   }
 }
 

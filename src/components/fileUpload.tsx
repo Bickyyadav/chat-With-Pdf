@@ -48,7 +48,6 @@ const FileUpload = () => {
             router.push(`chat/${chat_id}`);
             toast.success("Chat created Successfully");
 
-            console.log("from mutation fileupload", data);
           },
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
           onError: (err) => {

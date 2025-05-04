@@ -23,7 +23,7 @@ const chatPage = async ({ params: { chatId } }: Props) => {
       user_id: userId,
     },
   });
-  
+
   if (!getChats) {
     redirect("/");
   }
@@ -44,7 +44,7 @@ const chatPage = async ({ params: { chatId } }: Props) => {
           <PDFView pdf_url={currentUrl?.pdf_url || ""} />
         </div>
         <div className=" flex-[3] border-l-4  border-l-slate-200">
-          <ChatComponent />
+          <ChatComponent chatId={chatId} />
         </div>
       </div>
     </div>

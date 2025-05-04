@@ -8,12 +8,14 @@ import MessageList from "@/config/MessageList";
 import { useEffect } from "react";
 import axios from "axios";
 
-const ChatComponent = ({ chat_Id }: { chat_Id: string }) => {
+
+
+const ChatComponent = ({ chatId }: { chatId: string }) => {
   const { input, handleInputChange, handleSubmit, messages, setMessages } =
     useChat({
       api: "/api/chat",
       body: {
-        chat_Id,
+        chatId,
       },
       onResponse: async (response) => {
         const data = await response.json();
@@ -21,20 +23,34 @@ const ChatComponent = ({ chat_Id }: { chat_Id: string }) => {
         setMessages((prev) => [...prev, assistantMessage]);
       },
     });
-  console.log("🚀 ~ ChatComponent ~ messages:", messages);
 
   useEffect(() => {
     const getMessages = async () => {
-      const response = await axios.post("/api/get-messages", {
-        chat_Id,
+      const response = await axios.post("/api/get-Messages", {
+        data: {
+          chatId,
+        },
       });
       setMessages(response.data);
     };
     getMessages();
-  }, [chat_Id]);
+  }, [chatId]);
+
+  React.useEffect(() => {
+    const messageContainer = document.getElementById("message-container");
+    if (messageContainer) {
+      messageContainer.scrollTo({
+        top: messageContainer.scrollHeight,
+        behavior: "smooth",
+      });
+    }
+  }, [messages]);
 
   return (
-    <div className="relative max-h-screen overflow-scroll">
+    <div
+      className="relative max-h-screen overflow-scroll "
+      id="message-container"
+    >
       {/* header */}
       <div className="sticky top-0 inset-x-0 p-2 bg-white h-fit">
         <h3 className="text-xl font-bold">Chat</h3>

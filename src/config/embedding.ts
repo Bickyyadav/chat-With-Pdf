@@ -1,20 +1,23 @@
 import { GoogleGenAI } from "@google/genai";
 
 export async function getEmbedding(text: string) {
-  console.log("🚀 ~ main ~ process.env.OPEN_AI_KEY:", process.env.OPEN_AI_KEY);
   try {
     const ai = new GoogleGenAI({ apiKey: process.env.OPEN_AI_KEY });
 
     const response = await ai.models.embedContent({
-      model: "gemini-embedding-exp-03-07",
-      contents: text.replace(/\n/g, " "),
+      model: "text-embedding-004",
+      contents: text,
     });
 
-    console.log(response.embeddings as number[]);
+    if (!response.embeddings || response.embeddings.length === 0) {
+      throw new Error("No embeddings returned from the model.");
+    }
+
+    const embedding = response.embeddings[0].values;
+    console.log("🚀 ~ getEmbedding ~ embedding:", embedding);
+    return embedding;
   } catch (error) {
-    // console.log("🚀 ~ getEmbedding ~ error:", error);
+    console.log("🚀 ~ getEmbedding ~ error:", error);
     throw error;
   }
 }
-
-// getEmbedding("What is the meaning of life?");

@@ -1,5 +1,5 @@
 /* eslint-disable prefer-const */
-import { Pinecone } from "@pinecone-database/pinecone";
+import { Pinecone, PineconeRecord } from "@pinecone-database/pinecone";
 import { downloadFromS3 } from "./s3-getpdf";
 //PDFLoader in LangChain is used to extract and convert the content of a PDF file into plain text documents,
 import { PDFLoader } from "@langchain/community/document_loaders/fs/pdf";
@@ -9,8 +9,7 @@ import {
 } from "@pinecone-database/doc-splitter";
 import { getEmbedding } from "./embedding";
 import md5 from "md5";
-import { Vector } from "@pinecone-database/pinecone/dist/pinecone-generated-ts-fetch/db_data";
-import { convertToAscii } from "@/lib/utils";
+// import { convertToAscii } from "@/lib/utils";
 
 let pineconeClient: Pinecone | null = null;
 
@@ -41,23 +40,26 @@ export async function loadS3IntoPinecone(fileKey: string) {
 
     const loader = new PDFLoader(file_name);
     const pages = (await loader.load()) as PDFPage[];
-    console.log("🚀 ~ loadS3IntoPinecone ~ loader:", loader);
     //2. split and segments the pdf into documentation
     //if the page has 13Array after calling the prepareDocument array it may convert into the 100Array
     const document = await Promise.all(
       pages.map((pages) => prepareDocument(pages))
     );
+    console.log("🚀 ~ loadS3IntoPinecone ~ document:", document);
 
     //3. step is vectorize and embedded individual document
     const vectors = await Promise.all(document.flat().map(embedDocument));
+    console.log("🚀 ~ loadS3IntoPinecone ~ vectors:", vectors);
 
     //upload to pinecone
     const client = await getPineconeClient();
-    const pineconeIndex = client.Index("chatwithpdf");
-    console.log("🚀 ~ inserting vector ~ pineconeIndex:");
+    const pineconeIndex = client.Index("chatwithpdf1");
     //remove non ascii character
-    const namespace = convertToAscii(fileKey);
-    PineconeUtils.chunkedUpsert(pineconeIndex, vectors, namespace, 10);
+    const nameSpace = pineconeIndex.namespace(
+      removeNonAsciiCharacters(fileKey)
+    );
+    await nameSpace.upsert(vectors);
+    // await pineconeIndex.namespace(namespace).upsert(vectors);
     return document[0];
   } catch (error) {
     console.log("🚀 ~ loadS3IntoPinecone ~ error:", error);
@@ -65,6 +67,7 @@ export async function loadS3IntoPinecone(fileKey: string) {
 }
 
 //3 step
+
 async function embedDocument(doc: Document) {
   try {
     const embedding = await getEmbedding(doc.pageContent);
@@ -73,12 +76,11 @@ async function embedDocument(doc: Document) {
       id: hash,
       values: embedding,
       metadata: {
-        text: doc.metadata.text,
+        text: doc.metadata?.text,
         pageNumber: doc.metadata.pageNumber,
       },
-    } as Vector;
+    } as PineconeRecord;
   } catch (error) {
-    console.log("🚀 ~ embedDocument ~ error:", error);
     throw error;
   }
 }
@@ -106,4 +108,14 @@ async function prepareDocument(page: PDFPage) {
     }),
   ]);
   return docs;
+}
+
+// async function delay(ms: number) {
+//   return new Promise((resolve) => setTimeout(resolve, ms));
+// }
+
+export function removeNonAsciiCharacters(fileKey: string) {
+  const asciiString = fileKey.replace(/[^\x00-\x7F]+/g, "");
+
+  return asciiString;
 }
