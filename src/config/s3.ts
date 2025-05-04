@@ -33,15 +33,14 @@ export async function uploadToS3(file: File) {
         );
       })
       .promise();
-    await upload.then((data) => {
-    });
+    await upload.then((data) => {});
     return Promise.resolve({
       file_key,
       file_name: file.name,
     });
   } catch (error) {
     console.log("🚀 ~ uploadToS3 ~ error:", error);
-    throw error
+    throw error;
   }
 }
 

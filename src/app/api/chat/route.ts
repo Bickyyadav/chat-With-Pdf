@@ -8,6 +8,14 @@ export async function POST(req: Request) {
   try {
     const { messages, chatId } = await req.json();
 
+    // await prisma_client.message.create({
+    //   data: {
+    //     chat_id: chatId,
+    //     content: messages,
+    //     role: "user",
+    //   },
+    // });
+
     const chat = await prisma_client.chats.findUnique({
       where: { id: chatId },
     });
@@ -43,6 +51,7 @@ export async function POST(req: Request) {
       ],
     };
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const history = messages.map((msg: any) => ({
       role: msg.role,
       parts: [{ text: msg.content }],
@@ -55,6 +64,18 @@ export async function POST(req: Request) {
     });
 
     const text = result.response?.candidates?.[0]?.content?.parts?.[0]?.text;
+
+    // if (text) {
+    //   await prisma_client.message.create({
+    //     data: {
+    //       chat_id: chatId,
+    //       content: text,
+    //       role: "assistant",
+    //     },
+    //   });
+    // } else {
+    //   console.error("No response text from AI model");
+    // }
 
     return Response.json({
       message: [{ role: "assistant", content: text }],
